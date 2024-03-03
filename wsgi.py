@@ -1,7 +1,7 @@
-from main import app
+from main import main
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    main.run(debug=True)
 else:
     from gunicorn.app.wsgiapp import run
     run()
