@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Cro.B Orders Manager</title>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    <h1>Cro.B - Orders Data</h1>
+
+    {% if orders|length < 1 %}
+        <h1>There are No Orders</h1>
+    {% else %}
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Contact</th>
+                <th>Email</th>
+                <th>Product Name</th>
+                <th>Product Price</th>
+                <th>ordered date</th>
+            </tr>
+            {% for order in orders %}
+                <tr id="{{ order.id }}">
+                    <td>{{ order.name}}</td>
+                    <td>{{ order.address }}</td>
+                    <td>{{ order.phone}}</td>
+                    <td>{{ order.email}}</td>
+                    <td>{{ order.product_name }}</td>
+                    <td>{{ order.product_price }}</td>
+                    <td>{{ order.date_created.date() }}</td>
+                    <td>
+                    <button onclick="orderFulfilled('{{ order.id }}')">
+                        Order Fulfilled
+                    </button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+</div>
+
+
+{% endblock %}
