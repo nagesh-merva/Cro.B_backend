@@ -50,7 +50,7 @@ table {
 
 th,
 td {
-    white-space: nowrap;
+    white-space: wrap;
     overflow: hidden;
     text-overflow: ellipsis;
     display: table-cell;
@@ -66,10 +66,6 @@ th {
     color: var(--text-color);
 }
 
-td {
-    max-width: 150px;
-
-}
 
 td:nth-child(7) {
     max-width: none;
