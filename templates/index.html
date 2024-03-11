@@ -19,10 +19,11 @@
                 <th>Email</th>
                 <th>Product Name</th>
                 <th>Product Price</th>
-                <th>ordered date</th>
+                <th>Ordered Date</th>
+                <th>Action</th>
             </tr>
             {% for order in orders %}
-                <tr id="{{ order.id }}">
+                <tr id="{{ order.id }}" {% if order.fulfilled %}class="fulfilled"{% endif %}>
                     <td>{{ order.name}}</td>
                     <td>{{ order.address }}</td>
                     <td>{{ order.phone}}</td>
@@ -31,9 +32,27 @@
                     <td>{{ order.product_price }}</td>
                     <td>{{ order.date_created.date() }}</td>
                     <td>
-                    <button onclick="orderFulfilled('{{ order.id }}')">
-                        Order Fulfilled
-                    </button>
+                        {% if not order.processed %}
+                        <button id="processBtn-{{ order.id }}" onclick="processOrder('{{ order.id }}')">
+                                Process Order
+                            </button>
+                        {% else %}
+                            <span id="processing-{{ order.id }}" class="fullfilled-message">&#10004; Processing</span><br>
+                        {% endif %}
+                        {% if not order.dispatched %}
+                            <button id="dispatchBtn-{{ order.id }}" onclick="dispatchOrder('{{ order.id }}')">
+                                Dispatch Order
+                            </button>
+                        {% else %}
+                            <span id="dispatched-{{ order.id }}" class="fullfilled-message"> &#10004; Dispatch</span><br>
+                        {% endif %}
+                        {% if not order.fulfilled %}
+                            <button onclick="orderFulfilled('{{ order.id }}')">
+                                Fulfill Order 
+                            </button>
+                        {% else %}
+                            <span class="fullfilled-message">&#10004; Order Fullfilled</span><br>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
@@ -41,5 +60,71 @@
     {% endif %}
 </div>
 
+<script >
+    function processOrder(orderId) {
+        alert("Order processed successfully!");
+        fetch('/api/process_order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({id: orderId})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                document.getElementById(orderId).classList.add('processed');
+            } else {
+                console.error(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    function dispatchOrder(orderId) {
+        alert("Order dispatched successfully!");
+        fetch('/api/dispatch_order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({id: orderId})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                document.getElementById(orderId).classList.add('dispatched');
+            } else {
+                console.error(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    function orderFulfilled(orderId) {
+    alert("Order fulfilled successfully!");
+    fetch('/api/fulfill_order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({id: orderId}) 
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'fulfilled') {
+            document.getElementById(orderId).classList.add('fulfilled');
+        } else {
+            console.error(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+</script>
 
 {% endblock %}
