@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request, make_response, jsonify
+from flask import Flask, redirect, render_template, request, make_response, jsonify
 from pymongo import MongoClient
 from datetime import datetime
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True, allow_headers="*")
+CORS(app, supports_credentials=True, allow_headers="*", origins="*", methods=["OPTIONS", "POST"])
+CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
 client = MongoClient(
     'mongodb+srv://nagesh:nagesh2245@mywebsites.btvk61i.mongodb.net/',
@@ -43,6 +44,7 @@ def save_form_data():
     orderslist.insert_one(new_order)
 
     return jsonify({'status': 'success', 'message': 'Form data saved successfully'}), 200
+
 
 @app.route('/api/process_order', methods=['POST'])
 def process_order():
