@@ -2,8 +2,17 @@ from flask import Flask, render_template, request, make_response, jsonify
 from pymongo import MongoClient
 from datetime import datetime
 from flask_cors import CORS
+from email.message import EmailMessage
+import os
+import smtplib
 
 app = Flask(__name__)
+
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a_secure_default_key')
+user_email = os.environ.get('USER_EMAIL', 'default_user_email')
+user_password = os.environ.get('USER_PASSWORD', 'default_user_password')
+receiving_email = os.environ.get('RECEIVING_EMAIL')
+
 CORS(app, supports_credentials=True, allow_headers="*", origins="*", methods=["OPTIONS", "POST"])
 CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
@@ -104,3 +113,33 @@ def get_order_statuses():
         return jsonify({'status': 'success', 'order_statuses': statuses}), 200
 
     return jsonify({'status': 'error', 'message': 'Invalid request'}), 400
+
+@app.route('/contact', methods=['POST'])
+def contact():
+    receiving_email_address = receiving_email
+
+    name = request.form.get('name')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+    query = request.form.get('query')
+
+    app.logger.info(f"Received form data:\nName: {name}\nEmail: {email}\nphone: {phone}\nquery: {query}")
+
+    try:
+        msg = EmailMessage()
+        msg.set_content(f"From: {name}\nEmail: {email}\nphone: {phone}\nquery: {query}")
+
+        msg['Subject'] = f"New contact form submission: {phone}"
+        msg['From'] = email
+        msg['To'] = receiving_email_address
+
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls()
+            server.login(user_email,user_password)
+            server.send_message(msg)
+
+        return jsonify({'name': name, 'email': email, 'phone': phone, 'message': query})
+
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return jsonify({'message': 'Error sending email'}), 500
