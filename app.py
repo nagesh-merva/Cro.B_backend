@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, request, make_response, jsonify
+from flask import Flask, render_template, request, make_response, jsonify
 from pymongo import MongoClient
 from datetime import datetime
 from flask_cors import CORS
@@ -73,5 +73,34 @@ def fulfill_order():
     if order_id:
         orderslist.update_one({'id': order_id}, {'$set': {'fulfilled': True}})
         return jsonify({'status': 'success', 'message': f'Order {order_id} marked as fulfilled'}), 200
+
+    return jsonify({'status': 'error', 'message': 'Invalid request'}), 400
+
+@app.route('/api/get_order_statuses', methods=['POST'])
+def get_order_statuses():
+    data = request.json
+    order_ids = data.get('order_ids')
+
+    if order_ids:
+        statuses = []
+        for order_id in order_ids:
+            order = orderslist.find_one({'id': order_id})
+            if order:
+                status = {}
+                status['id'] = order_id
+
+                if order.get('fulfilled', False):
+                    status['status'] = 'fulfilled'
+                elif order.get('dispatched', False):
+                    status['status'] = 'dispatched'
+                elif order.get('processed', False):
+                    status['status'] = 'processing'
+                else:
+                    status['status'] = 'not_found'
+
+                statuses.append(status)
+            else:
+                statuses.append({'id': order_id, 'status': 'not_found'})
+        return jsonify({'status': 'success', 'order_statuses': statuses}), 200
 
     return jsonify({'status': 'error', 'message': 'Invalid request'}), 400
