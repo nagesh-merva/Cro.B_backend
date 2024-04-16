@@ -94,6 +94,8 @@ def get_order_statuses():
         statuses = []
         for order_id in order_ids:
             order = orderslist.find_one({'id': order_id})
+            print("Processing order: ", order_id)
+            print("Order found: ", order)
             if order:
                 status = {}
                 status['id'] = order_id
@@ -139,6 +141,36 @@ def contact():
             server.send_message(msg)
 
         return jsonify({'name': name, 'email': email, 'phone': phone, 'message': query})
+
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return jsonify({'message': 'Error sending email'}), 500
+    
+@app.route('/call', methods=['POST'])
+def contact():
+    receiving_email_address = receiving_email
+
+    name = request.form.get('name')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+    time = request.form.get('time')
+
+    app.logger.info(f"Received form data:\nName: {name}\nEmail: {email}\nphone: {phone}\ntime: {time}")
+
+    try:
+        msg = EmailMessage()
+        msg.set_content(f"From: {name}\nEmail: {email}\nphone: {phone}\ntime: {time}")
+
+        msg['Subject'] = f"New contact form submission: {phone}"
+        msg['From'] = email
+        msg['To'] = receiving_email_address
+
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls()
+            server.login(user_email,user_password)
+            server.send_message(msg)
+
+        return jsonify({'name': name, 'email': email, 'phone': phone, 'time': time})
 
     except Exception as e:
         print(f"Error sending email: {e}")

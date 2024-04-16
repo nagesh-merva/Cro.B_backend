@@ -8,12 +8,19 @@
     <div class="topbar">
         <h1 id="Comname">CROB</h1>
     </div>
+    <div>
+        <nav> 
+            <a onclick="" href="/">Orders</a>
+            <a href="./analysis">Analysis</a>
+        </nav>
+    </div>
     <div class="content">
     <h1>Cro.B - Orders Data</h1>
 
     {% if orders|length < 1 %}
         <h1>There are No Orders</h1>
     {% else %}
+    <div id="tb-div">
         <table>
             <tr>
                 <th>Name</th>
@@ -34,7 +41,7 @@
                     <td>{{ order.product_name }}</td>
                     <td>{{ order.product_price }}</td>
                     <td>{{ order.date_created.date() }}</td>
-                    <td>
+                    <td id="btn-td">
                         {% if not order.processed %}
                         <button id="processBtn-{{ order.id }}" onclick="processOrder('{{ order.id }}')">
                                 Process Order
@@ -60,6 +67,7 @@
                 </tr>
             {% endfor %}
         </table>
+    </div>
     {% endif %}
 </div>
 
