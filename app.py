@@ -147,7 +147,7 @@ def contact():
         return jsonify({'message': 'Error sending email'}), 500
     
 @app.route('/call', methods=['POST'])
-def contact():
+def call():
     receiving_email_address = receiving_email
 
     name = request.form.get('name')
