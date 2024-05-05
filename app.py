@@ -47,11 +47,12 @@ def save_form_data():
         'phone': data['phone'],
         'product_name': data['productName'],
         'product_price': data['productPrice'],
+        'payment': data['paymentMethod'],
         'date_created': datetime.utcnow(),
         'fulfilled': False
     }
     orderslist.insert_one(new_order)
-
+    print(data)
     return jsonify({'status': 'success', 'message': 'Form data saved successfully'}), 200
 
 

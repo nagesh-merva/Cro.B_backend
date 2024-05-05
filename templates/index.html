@@ -29,6 +29,7 @@
                 <th>Email</th>
                 <th>Product Name</th>
                 <th>Product Price</th>
+                <th>Payment</th>
                 <th>Ordered Date</th>
                 <th>Action</th>
             </tr>
@@ -40,6 +41,7 @@
                     <td>{{ order.email}}</td>
                     <td>{{ order.product_name }}</td>
                     <td>{{ order.product_price }}</td>
+                    <td>{{ order.payment }}</td>
                     <td>{{ order.date_created.date() }}</td>
                     <td id="btn-td">
                         {% if not order.processed %}
