@@ -1,3 +1,4 @@
+import random
 from flask import Flask, render_template, request, make_response, jsonify
 from pymongo import MongoClient
 from datetime import datetime
@@ -22,6 +23,13 @@ client = MongoClient(
     socketTimeoutMS=None)
 db = client['Crob_orders']
 orderslist = db['orders']
+
+client2 = MongoClient(
+    'mongodb+srv://crob0008:GYfLnhxdJgeiOTPO@chefsbhojan.oxsu9gm.mongodb.net/',
+    connectTimeoutMS=30000, 
+    socketTimeoutMS=None)
+db2 = client2['FORMDATACOLLECTION']
+Deatils = db2['CONTACTS']
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -176,3 +184,30 @@ def call():
     except Exception as e:
         print(f"Error sending email: {e}")
         return jsonify({'message': 'Error sending email'}), 500
+    
+    
+@app.route('/api2/save_form_data', methods=['POST', 'OPTIONS'])
+def save_form_data():
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'success', 'message': 'CORS preflight request handled successfully'}), 200
+    
+    data = request.get_json()
+    print("Received form data:", data)
+
+    new_order = {
+        'name': data['name'],
+        'phone': data['phone'],
+        'date_created': datetime.utcnow(),
+    }
+    Deatils.insert_one(new_order)
+    return jsonify({'status': 'success', 'message': 'Form data saved successfully'}), 200
+
+def get_weighted_value():
+    values = [10, 20, 40]
+    probabilities = [0.5, 0.4, 0.1]
+    return random.choices(values, probabilities)[0]
+
+@app.route('/api2/get_discount_value', methods=['GET'])
+def get_value():
+    value = get_weighted_value()
+    return jsonify({'value': value})
