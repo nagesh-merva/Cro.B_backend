@@ -23,7 +23,6 @@ client = MongoClient(
     socketTimeoutMS=None)
 db = client['Crob_orders']
 orderslist = db['orders']
-Details = db['details']
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -180,31 +179,3 @@ def call():
         return jsonify({'message': 'Error sending email'}), 500
     
     
-@app.route('/api/save_contact', methods=['POST', 'OPTIONS'])
-def save_form_data():
-
-    if request.method == 'OPTIONS':
-        return jsonify({'status': 'success', 'message': 'CORS preflight request handled successfully'}), 200
-
-    
-    data = request.get_json()
-    print("Received form data:", data)
-
-    new_order = {
-        'name': data['name'],
-        'phone': data['phone'],
-        'date_created': datetime.utcnow(),
-    }
-    Details.insert_one(new_order)
-    return jsonify({'status': 'success', 'message': 'Form data saved successfully'}), 200
-
-
-def get_weighted_value():
-    values = [10, 20, 40]
-    probabilities = [0.5, 0.4, 0.1]
-    return random.choices(values, probabilities)[0]
-
-@app.route('/api/get_discount_value', methods=['GET'])
-def get_value():
-    value = get_weighted_value()
-    return jsonify({'value': value})
